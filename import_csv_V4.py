@@ -93,7 +93,7 @@ def load_unit_mapping(map_file):
         
     return mapping
 
-def filter_latest_test_results(input_file, output_file, unit_mapping, file_sort, has_header=True):
+def filter_latest_test_results(input_file, output_file, unit_mapping, compare_file, file_sort, has_header=True):
     latest_results = {}
 
     print(f"[Start] Reading file: {input_file}")
@@ -139,9 +139,9 @@ def filter_latest_test_results(input_file, output_file, unit_mapping, file_sort,
                     if current_test_time > existing_time:
                         latest_results[serial_num] = {'time': current_test_time, 'data': clean_data}
             
-            # ==========================================
-                # Perform Delta Check (Compare old and new data)
-                # ==========================================
+        # ==========================================
+        # Perform Delta Check (Compare old and new data)
+        # ==========================================
         if compare_file:
             print(f"\n[Info] Starting comparison with yesterday's file: {compare_file}")
             
