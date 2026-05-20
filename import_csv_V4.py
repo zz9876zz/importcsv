@@ -138,32 +138,33 @@ def filter_latest_test_results(input_file, output_file, unit_mapping, file_sort,
                     existing_time = latest_results[serial_num]['time']
                     if current_test_time > existing_time:
                         latest_results[serial_num] = {'time': current_test_time, 'data': clean_data}
-                
-                 # ==========================================
+            
+            # ==========================================
                 # Perform Delta Check (Compare old and new data)
                 # ==========================================
-                if compare_file:
-                    print(f"\n[Info] Starting comparison with yesterday's file: {compare_file}")
+        if compare_file:
+            print(f"\n[Info] Starting comparison with yesterday's file: {compare_file}")
+            
+            # 1. Load yesterday's old data
+            old_data = load_compare_data(compare_file)
+            
+            # 2. Run the comparison function and catch the two lists
+            new_sn_list, change_sn_list = run_delta_check(latest_results, old_data)
+            
+            # 3. Print the professional comparison report
+            print(f"[Info] Comparison complete! Found {len(new_sn_list)} new units and {len(change_sn_list)} units with changed status.")
+            
+            # 4. Print the detailed lists
+            if new_sn_list:
+                print("\n--- New Units List ---")
+                for sn in new_sn_list:
+                    print(f"  - {sn}")
                     
-                    # 1. Load yesterday's old data
-                    old_data = load_compare_data(compare_file)
-                    
-                    # 2. Run the comparison function and catch the two lists
-                    new_sn_list, change_sn_list = run_delta_check(latest_results, old_data)
-                    
-                    # 3. Print the professional comparison report
-                    print(f"[Info] Comparison complete! Found {len(new_sn_list)} new units and {len(change_sn_list)} units with changed status.")
-                    
-                    # 4. Print the detailed lists
-                    if new_sn_list:
-                        print("\n--- New Units List ---")
-                        for sn in new_sn_list:
-                            print(f"  - {sn}")
-                            
-                    if change_sn_list:
-                        print("\n--- Changed Units List ---")
-                        for sn in change_sn_list:
-                            print(f"  - {sn}")   
+            if change_sn_list:
+                print("\n--- Changed Units List ---")
+                for sn in change_sn_list:
+                    print(f"  - {sn}")       
+                
                 
         # Write the filtered results to a new CSV file
         with open(output_file, mode='w', encoding='utf-8-sig', newline='') as f:
@@ -185,7 +186,6 @@ def filter_latest_test_results(input_file, output_file, unit_mapping, file_sort,
             map_sns = set(unit_mapping.keys())
             
             # 2. Get all tested SNs (as a set)
-            tested_sns = set(latest_results.items()) 
             tested_sns = set(latest_results.keys())
             
             # 3. Set subtraction: Find SNs in MAP but not in test records
